@@ -59,7 +59,7 @@ class ProfileService {
     var _url = BaseUrl.url;
     try {
       var _result;
-      var _response = await _client.post(_url + "getVehicle",
+      var _response = await _client.post(_url + "vehicle/getAll",
           headers: {'Authorization': 'Bearer ' + token!},
           body: {'customer_id': _customer_id});
       final _data = jsonDecode(_response.body);
@@ -80,5 +80,30 @@ class ProfileService {
 
   Future<Map> getVehicleDetail() async {
     return {'result': true};
+  }
+
+  Future<Map> saveVehicle(Map data) async {
+    String? token = await storage.read(key: 'token');
+    var _customer_id = await storage.read(key: 'customer_id');
+    data['customer_id'] = _customer_id;
+    var _url = BaseUrl.url;
+    try {
+      var _response = await _client.post(_url + "vehicle/save",
+          headers: {'Authorization': 'Bearer ' + token!}, body: data);
+      final _data = jsonDecode(_response.body);
+      print(_data);
+      if (_data['result']) {
+        return {'result': true, 'message': _data['message']};
+      } else {
+        return {'result': false, 'message': _data['message']};
+      }
+    } catch (e) {
+      var _data = {
+        "result": false,
+        "message": "An error occured, please check your connection"
+      };
+      print(e);
+      return _data;
+    }
   }
 }
