@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:vehicle_care_2/constant/responsive_screen.dart';
 import 'package:vehicle_care_2/screen/add_vehicle_screen.dart';
@@ -82,10 +84,12 @@ class _VehicleScreenState extends State<VehicleScreen> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => DetailVehicle(
-                                            customer_vehicle_id:
-                                                _listVehicle[index]
-                                                    ['customer_vehicle_id'])));
+                                        builder: (context) => DetailVehicleScreen(
+                                            customer_vehicle_id: _listVehicle[
+                                                    index]
+                                                ['customer_vehicle_id']))).then(
+                                    onGoBack);
+                                ;
                               },
                               child: Card(
                                 elevation: 5.0,
@@ -176,6 +180,33 @@ class _VehicleScreenState extends State<VehicleScreen> {
                                             ),
                                           ],
                                         ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(16),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: <Widget>[
+                                                Text("Vehicle Type : ",
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "NunitoSansBold",
+                                                        fontSize: 16)),
+                                                Text(
+                                                    "${_listVehicle[index]['vehicle_type']}",
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "NunitoSans",
+                                                        fontSize: 16)),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       )
                                     ],
                                   ),
@@ -190,10 +221,16 @@ class _VehicleScreenState extends State<VehicleScreen> {
         child: Icon(Icons.add),
         onPressed: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => AddVehicleScreen()));
+                  MaterialPageRoute(builder: (context) => AddVehicleScreen()))
+              .then(onGoBack);
         },
       ),
       drawer: leftBar.leftBar(),
     );
+  }
+
+  FutureOr onGoBack(dynamic value) {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => VehicleScreen()));
   }
 }

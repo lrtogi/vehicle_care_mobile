@@ -1,9 +1,13 @@
+// @dart=2.9
 import 'package:flutter/material.dart';
+import 'package:vehicle_care_2/models/customer_vehicle_model.dart';
 import 'package:vehicle_care_2/services/profile_service.dart';
 
 class AddVehicleScreen extends StatefulWidget {
-  AddVehicleScreen({Key? key}) : super(key: key);
-
+  // AddVehicleScreen({Key? key}) : super(key: key);
+  final int idPage;
+  final VehicleItem itemVehicle;
+  const AddVehicleScreen({this.idPage, this.itemVehicle});
   @override
   _AddVehicleScreenState createState() => _AddVehicleScreenState();
 }
@@ -14,12 +18,15 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
   final _vehicleNameController = TextEditingController();
   final _policeNumberController = TextEditingController();
   var _selectVehicleType;
-  var _listVehicleType = [
-    {'vehicle_id': '123123123123', 'vehicle_type': 'Test Name'},
-    {}
-  ];
+  List<dynamic> _listVehicleType = List();
   bool _loadData = false;
   ProfileService _profileService = ProfileService();
+
+  @override
+  void initState() {
+    super.initState();
+    _getVehicleType();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +68,9 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                                 EdgeInsets.symmetric(horizontal: 10)),
                         items: _listVehicleType.map((value) {
                           return DropdownMenuItem<String>(
-                            value: value['vehicle_id'],
+                            value: value['vehicle_id'].toString(),
                             child: Text(
-                              value['vehicle_type'],
+                              value['vehicle_type'].toString(),
                               overflow: TextOverflow.ellipsis,
                             ),
                           );
@@ -127,7 +134,8 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                         onPressed: () {
                           Map datas = {
                             'vehicle_name': _vehicleNameController.text,
-                            'police_number': _policeNumberController.text
+                            'police_number': _policeNumberController.text,
+                            'vehicle_id': _selectVehicleType
                           };
                           _checkData(datas: datas);
                         },
@@ -164,41 +172,73 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                 )));
   }
 
-  _checkData({Map? datas}) async {
+  _getVehicleType() async {
+    setState(() {
+      _loadData = true;
+    });
+    var _result = await _profileService.getVehicleType();
+    if (_result['result']) {
+      setState(() {
+        print(_result['data']);
+        _listVehicleType = _result['data']['data'];
+        _loadData = false;
+      });
+    } else {
+      setState(() {
+        _loadData = false;
+      });
+      _showSnackBarFailed(_result['message']);
+    }
+  }
+
+  _checkData({Map datas}) async {
     final form = _key.currentState;
-    if (form!.validate()) {
+    if (form.validate()) {
       form.save();
-      _saveData(datas!);
+      print(datas);
+      _saveData(datas);
     } else {
       setState(() {});
     }
   }
 
-  _saveData(Map? datas) async {
+  _saveData(Map datas) async {
     setState(() {
       _loadData = true;
     });
-    var _result = await _profileService.saveVehicle(datas!);
+    var _result = await _profileService.saveVehicle(datas);
     setState(() {
       _loadData = false;
     });
     if (_result['result']) {
-      _showSnackBar(_result['message']);
-      Future.delayed(Duration(seconds: 1), () {
-        Navigator.pop(context);
-      });
+      _showSnackBarSuccess(_result['message']);
     } else {
-      _showSnackBar(_result['message']);
+      _showSnackBarFailed(_result['message']);
       setState(() {
         _loadData = false;
       });
     }
   }
 
-  void _showSnackBar(String text) {
-    _scaffoldKey.currentState!.showSnackBar(SnackBar(
-        content: Text(text, style: TextStyle(fontFamily: "NunitoSans")),
-        behavior: SnackBarBehavior.floating,
-        elevation: 5.0));
+  _showSnackBarSuccess(String text) {
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(
+        content: new Text(text), behavior: SnackBarBehavior.floating));
+    _goBackTimer();
+  }
+
+  _showSnackBarFailed(String text) {
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(
+        content: new Text(text), behavior: SnackBarBehavior.floating));
+  }
+
+  _goBackTimer() {
+    setState(() {
+      _policeNumberController.text = "";
+      _vehicleNameController.text = "";
+      _selectVehicleType = null;
+    });
+    Future.delayed(Duration(seconds: 1), () {
+      Navigator.pop(context);
+    });
   }
 }
