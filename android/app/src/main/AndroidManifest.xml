@@ -2,7 +2,8 @@
     package="com.example.vehicle_care_2">
    <application
         android:label="vehicle_care_2"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon"
+        android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

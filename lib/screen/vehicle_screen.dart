@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:vehicle_care_2/constant/responsive_screen.dart';
 import 'package:vehicle_care_2/screen/add_vehicle_screen.dart';
-import 'package:vehicle_care_2/screen/detail_vehicle_screen.dart';
 import 'package:vehicle_care_2/screen/left_bar.dart';
 import 'package:vehicle_care_2/services/profile_service.dart';
 
@@ -84,7 +83,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => DetailVehicleScreen(
+                                        builder: (context) => AddVehicleScreen(
                                             customer_vehicle_id: _listVehicle[
                                                     index]
                                                 ['customer_vehicle_id']))).then(
@@ -220,9 +219,12 @@ class _VehicleScreenState extends State<VehicleScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AddVehicleScreen()))
-              .then(onGoBack);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AddVehicleScreen(
+                        customer_vehicle_id: null,
+                      ))).then(onGoBack);
         },
       ),
       drawer: leftBar.leftBar(),

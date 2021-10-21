@@ -33,6 +33,8 @@ class _EditProfileState extends State<EditProfile> {
   var _result;
   LeftBar leftBar = LeftBar();
   bool _loadData = false;
+  var primaryColor = const Color(0xff0692CB);
+
   @override
   void initState() {
     super.initState();
@@ -62,15 +64,15 @@ class _EditProfileState extends State<EditProfile> {
       _loadData = true;
     });
     _result = await _profileService.getProfile();
-    setState(() {
-      _loadData = false;
-    });
     print(_result['model']);
     if (_result['result']) {
-      _emailController.text = _result['model']['email'];
-      _nameController.text = _result['model']['customer_name'];
-      _addressController.text = _result['model']['alamat'];
-      _phoneController.text = _result['model']['no_telp'];
+      setState(() {
+        _loadData = false;
+        _emailController.text = _result['model']['email'];
+        _nameController.text = _result['model']['customer_name'];
+        _addressController.text = _result['model']['alamat'];
+        _phoneController.text = _result['model']['no_telp'];
+      });
     } else {
       setState(() {
         _loadData = false;
