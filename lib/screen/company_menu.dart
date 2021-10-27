@@ -38,6 +38,7 @@ class _CompanyMenuState extends State<CompanyMenu> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => BookingScreen(
+                              transaction_id: '',
                               company_id: widget.company_id,
                               company_name: widget.company_name,
                               date: DateTime.now(),

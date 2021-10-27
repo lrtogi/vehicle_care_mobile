@@ -41,7 +41,6 @@ class _JobListState extends State<JobList> {
     _datePicker = _dateTime;
     var _formatter = DateFormat("dd-MM-yyyy");
     _controllerDate.text = _formatter.format(_dateTime);
-    print(_controllerDate.text);
   }
 
   Widget bodydata() => ChangeNotifierProvider<JobService>(
@@ -59,13 +58,15 @@ class _JobListState extends State<JobList> {
               columns: [
                 DataColumn(label: Text('Index')),
                 DataColumn(label: Text('Customer Name')),
-                DataColumn(label: Text('Package Name'))
+                DataColumn(label: Text('Package Name')),
+                DataColumn(label: Text('Status'))
               ],
               rows: _jobService.jobListModel.data
                   .map((data) => DataRow(cells: [
+                        DataCell(Text(data.index.toString())),
                         DataCell(Text(data.customerName)),
                         DataCell(Text(data.packageName)),
-                        DataCell(Text(data.customerName)),
+                        DataCell(Text(data.status))
                       ]))
                   .toList(),
             ),
@@ -189,6 +190,7 @@ class _JobListState extends State<JobList> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => BookingScreen(
+                                transaction_id: '',
                                 company_id: widget.company_id,
                                 company_name: widget.company_name,
                                 date: _datePicker,
@@ -220,7 +222,6 @@ class _JobListState extends State<JobList> {
         lastDate: DateTime(2101));
     if (picked != null) {
       var formatter = new DateFormat('dd-MM-yyyy');
-      print(formatter.format(picked));
       setState(() {
         _datePicker = picked;
         _controllerDate.text = formatter.format(picked);
@@ -239,7 +240,6 @@ class _JobListState extends State<JobList> {
       var _result = await _jobService.searchJob(
           widget.company_id, _controllerDate.text, _selectVehicleType);
       if (_result['result']) {
-        print(_result['data']);
         if (_result['data'].isEmpty) {
           setState(() {
             _jobList = [];
@@ -274,7 +274,6 @@ class _JobListState extends State<JobList> {
     var _result = await _profileService.getVehicleType();
     if (_result['result']) {
       setState(() {
-        print(_result['data']);
         _listVehicleType = _result['data']['data'];
         _loadData = false;
       });

@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late Screen size;
   String _messageEmpty = "";
   var primaryColor = const Color(0xff0692CB);
+  var _choise = ["Pay"];
 
   void initState() {
     super.initState();
@@ -42,10 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     var _result = await _profileService.getCompany();
     if (_result['result']) {
-      print(_result['data']);
       setState(() {
         _listCompany = _result['data'];
-        print(_listCompany);
         _loadData = false;
       });
     } else {
@@ -162,20 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           color: Colors.black)),
                                                 ),
                                               ),
-                                              SizedBox(width: 0.0, height: 0.0),
-                                              Expanded(
-                                                flex: 2,
-                                                child: Container(
-                                                    padding: EdgeInsets.only(
-                                                        top:
-                                                            size.getWidthPx(16),
-                                                        bottom:
-                                                            size.getWidthPx(16),
-                                                        left:
-                                                            size.getWidthPx(8)),
-                                                    child: Icon(Icons
-                                                        .arrow_forward_ios)),
-                                              ),
+                                              SizedBox(width: 0.0, height: 0.0)
                                             ],
                                           ),
                                         ),

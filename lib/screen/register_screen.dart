@@ -440,7 +440,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _loadCheckData = true;
       });
       var _result = await _auth.registration(creds: creds);
-      print(_result);
       if (_result['result']) {
         setState(() {
           _loadCheckData = false;
@@ -451,7 +450,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Navigator.pop(context, true);
         });
       } else {
-        print(_result);
         setState(() {
           _loadCheckData = false;
         });

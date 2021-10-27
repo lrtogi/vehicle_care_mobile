@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:vehicle_care_2/screen/edit_profile.dart';
 import 'package:vehicle_care_2/screen/home_screen.dart';
 import 'package:vehicle_care_2/screen/login_screen.dart';
+import 'package:vehicle_care_2/screen/transaction_screen.dart';
 import 'package:vehicle_care_2/screen/vehicle_screen.dart';
 import 'package:vehicle_care_2/services/auth.dart';
 
@@ -68,6 +69,15 @@ class LeftBar extends StatefulWidget {
                 onTap: () {
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => VehicleScreen()));
+                }),
+            ListTile(
+                title: Text("List Transaction"),
+                leading: Icon(Icons.book_online_rounded),
+                onTap: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => TransactionScreen()));
                 }),
             ListTile(
                 title: Text("Logout"),

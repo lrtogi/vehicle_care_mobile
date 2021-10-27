@@ -18,16 +18,19 @@ class JobListModel {
 class Data {
   Data({
     required this.customerName,
-    required this.orderDate,
+    required this.index,
     required this.packageName,
+    required this.status,
   });
   late final String customerName;
-  late final String orderDate;
+  late final int index;
   late final String packageName;
+  late final String status;
 
   Data.fromJson(Map<String, dynamic> json) {
     customerName = json['customer_name'];
-    orderDate = json['order_date'];
+    index = json['index'];
     packageName = json['package_name'];
+    status = json['status'];
   }
 }

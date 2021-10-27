@@ -262,7 +262,6 @@ class _LoginScreenState extends State<LoginScreen> {
         _loadCheckData = true;
       });
       var _result = await _auth.checkLogin(creds: creds);
-      print(_result);
       if (_result['result']) {
         setState(() {
           _loadCheckData = false;
@@ -270,7 +269,6 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
       } else {
-        print(_result);
         setState(() {
           _loadCheckData = false;
         });
@@ -286,14 +284,11 @@ class _LoginScreenState extends State<LoginScreen> {
   _checkIsLoggedIn() async {
     String? token = await storage.read(key: 'token');
     if (token != null) {
-      print(token);
       var _result = await auth.tryToken(token: token);
       setState(() {
         _loadCheckData = true;
       });
-      print(_result);
       if (_result['result']) {
-        print('logged in');
         setState(() {
           _loadCheckData = false;
         });

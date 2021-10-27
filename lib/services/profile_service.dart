@@ -41,7 +41,6 @@ class ProfileService {
       var _response = await _client.post(_url + "saveProfile",
           headers: {'Authorization': 'Bearer ' + token!}, body: data);
       final _data = jsonDecode(_response.body);
-      print(_data);
       if (_data['result']) {
         return {'result': true, 'message': _data['message']};
       } else {
@@ -62,18 +61,15 @@ class ProfileService {
     var _customer_id = await storage.read(key: 'customer_id');
     var _url = BaseUrl.url;
     try {
-      print(_customer_id);
       var _result;
       var _response = await _client.post(_url + "vehicle/getAll",
           headers: {'Authorization': 'Bearer ' + token!},
           body: {'customer_id': _customer_id});
       final _data = jsonDecode(_response.body);
-      print("cek data $_data");
       if (_data['data'].length > 0) {
         _result = {"result": true, "data": _data};
       } else {
         _result = {"result": false, "message": "No data vehicle"};
-        print(_result);
       }
       return _result;
     } catch (e) {
@@ -92,7 +88,6 @@ class ProfileService {
           headers: {'Authorization': 'Bearer ' + token!},
           body: {'customer_vehicle_id': customer_vehicle_id});
       final _data = jsonDecode(_response.body);
-      print(_data);
       if (_data['result']) {
         _result = {"result": true, "data": _data['data']};
       } else {
@@ -133,7 +128,6 @@ class ProfileService {
           options: dio.Options(
             headers: {'Authorization': 'Bearer ' + token!},
           ));
-      print(_response.data);
       // var uri = Uri.parse(BaseUrl.url + "vehicle/save");
       // // open a bytestream
       // var stream =
@@ -154,7 +148,6 @@ class ProfileService {
       // http.Response _response =
       //     await http.Response.fromStream(await request.send());
       var _data = _response.data;
-      print(_data);
       if (_data['result']) {
         return {'result': true, 'message': _data['message']};
       } else {
@@ -204,10 +197,8 @@ class ProfileService {
       final _data = jsonDecode(_response.body);
       if (_data['data'].length > 0) {
         _result = {"result": true, "data": _data};
-        print(_result);
       } else {
         _result = {"result": false, "message": "No data vehicle"};
-        print(_result);
       }
       return _result;
     } catch (e) {
@@ -229,7 +220,6 @@ class ProfileService {
         _result = {"result": true, "data": _data['data']};
       } else {
         _result = {"result": false, "message": "No company list"};
-        print(_result);
       }
       return _result;
     } catch (e) {

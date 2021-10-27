@@ -63,7 +63,6 @@ class Auth extends ChangeNotifier {
       final _response = await client.post("${BaseUrl.url}login",
           headers: {'Accept': 'application/json'}, body: creds);
       final _responseData = jsonDecode(_response.body);
-      print(_responseData);
       if (_responseData['result']) {
         var token = _responseData['token'].toString();
         _result = {
@@ -111,9 +110,7 @@ class Auth extends ChangeNotifier {
         //     options: Dio.Options(headers: {'Authorization': 'Bearer $token'}));
         final _response = await client.get("${BaseUrl.url}user",
             headers: {'Authorization': 'Bearer $token'});
-
         final _responseData = jsonDecode(_response.body);
-        print(_responseData);
         if (_responseData['message'] != null) {
           var _result = {"result": false, "message": _responseData['message']};
           return _result;
@@ -136,7 +133,6 @@ class Auth extends ChangeNotifier {
           return _result;
         }
       } catch (e) {
-        print('ada error');
         print(e);
         var _result = {"result": false, "message": 'Error while check Token'};
         return _result;

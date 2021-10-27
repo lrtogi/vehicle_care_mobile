@@ -77,12 +77,10 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
       }
 
       setState(() {
-        print(_result['data']);
         _selectVehicleType = _result['data']['vehicle_id'];
         _vehicleNameController.text = _result['data']['vehicle_name'];
         _policeNumberController.text = _result['data']['police_number'];
         _imageUrl = _result['data']['vehicle_photo_url'];
-        print(_imageUrl);
         _processImage = false;
         _loadData = false;
       });
@@ -107,7 +105,8 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
             ? Center(child: CircularProgressIndicator())
             : Form(
                 key: _key,
-                child: Column(
+                child: SingleChildScrollView(
+                    child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
@@ -357,7 +356,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                       ],
                     )
                   ],
-                )));
+                ))));
   }
 
   Future<bool> _onWillPop() async {
@@ -406,7 +405,6 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
     var _result = await _profileService.getVehicleType();
     if (_result['result']) {
       setState(() {
-        print(_result['data']);
         _listVehicleType = _result['data']['data'];
         _loadData = false;
       });
@@ -529,7 +527,6 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
   }
 
   Future<File> testCompressAndGetFile(File file, String targetPath) async {
-    print("testCompressAndGetFile");
     final result = await FlutterImageCompress.compressAndGetFile(
         file.absolute.path, targetPath,
         quality: 70, minHeight: 170, minWidth: 113);

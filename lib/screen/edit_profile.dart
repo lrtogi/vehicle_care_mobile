@@ -64,7 +64,6 @@ class _EditProfileState extends State<EditProfile> {
       _loadData = true;
     });
     _result = await _profileService.getProfile();
-    print(_result['model']);
     if (_result['result']) {
       setState(() {
         _loadData = false;

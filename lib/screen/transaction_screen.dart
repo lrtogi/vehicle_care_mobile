@@ -1,46 +1,52 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:vehicle_care_2/constant/responsive_screen.dart';
-import 'package:vehicle_care_2/screen/add_vehicle_screen.dart';
+import 'package:vehicle_care_2/screen/booking_screen.dart';
 import 'package:vehicle_care_2/screen/left_bar.dart';
-import 'package:vehicle_care_2/services/profile_service.dart';
+import 'package:vehicle_care_2/screen/payment_list_screen.dart';
+import 'package:vehicle_care_2/screen/payment_screen.dart';
+import 'package:vehicle_care_2/services/transaction_service.dart';
 
-class VehicleScreen extends StatefulWidget {
-  VehicleScreen({Key? key}) : super(key: key);
+class TransactionScreen extends StatefulWidget {
+  TransactionScreen({Key? key}) : super(key: key);
 
   @override
-  _VehicleScreenState createState() => _VehicleScreenState();
+  _TransactionScreenState createState() => _TransactionScreenState();
 }
 
-class _VehicleScreenState extends State<VehicleScreen> {
-  ProfileService _profileService = ProfileService();
+class _TransactionScreenState extends State<TransactionScreen> {
   LeftBar leftBar = LeftBar();
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _loadData = false;
-  var _listVehicle = [];
+  var _listTransaction = [];
+  var _choise = ['pay'];
+  String _messageEmpty = '';
   late Screen size;
-  String _messageEmpty = "";
+  TransactionService _transactionService = TransactionService();
 
   void initState() {
     super.initState();
-    _getVehicleData();
+    _getList();
   }
 
-  _getVehicleData() async {
+  _getList() async {
     setState(() {
       _loadData = true;
     });
-    var _result = await _profileService.getVehicle();
+    var _result = await _transactionService.getListTransaction();
     if (_result['result']) {
       setState(() {
-        _listVehicle = _result['data']['data'];
         _loadData = false;
+        _listTransaction = _result['data'];
+        if (_listTransaction.isEmpty) {
+          _messageEmpty = "No Transaction";
+        }
       });
     } else {
       setState(() {
-        _messageEmpty = _result['message'];
         _loadData = false;
+        _messageEmpty = "No Transaction";
       });
     }
   }
@@ -49,9 +55,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
   Widget build(BuildContext context) {
     size = Screen(MediaQuery.of(context).size);
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
-        title: Text("Vehicle Data"),
+        title: Text("List Transaction"),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +68,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
           Expanded(
               child: _loadData
                   ? Center(child: CircularProgressIndicator())
-                  : _listVehicle.isEmpty
+                  : _listTransaction.isEmpty
                       ? Center(
                           child: Text(_messageEmpty,
                               style: TextStyle(
@@ -81,11 +86,21 @@ class _VehicleScreenState extends State<VehicleScreen> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => AddVehicleScreen(
-                                            customer_vehicle_id: _listVehicle[
-                                                    index]
-                                                ['customer_vehicle_id']))).then(
-                                    onGoBack);
+                                        builder: (context) => BookingScreen(
+                                              transaction_id:
+                                                  _listTransaction[index]
+                                                      ['transaction_id'],
+                                              company_id:
+                                                  _listTransaction[index]
+                                                      ['company_id'],
+                                              company_name:
+                                                  _listTransaction[index]
+                                                      ['company_name'],
+                                              date: DateTime.parse(
+                                                  _listTransaction[index]
+                                                      ['order_date']),
+                                              vehicle_id: '',
+                                            ))).then(onGoBack);
                                 ;
                               },
                               child: Card(
@@ -125,7 +140,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
                                                           size.getWidthPx(16),
                                                       left: size.getWidthPx(8)),
                                                   child: Text(
-                                                      '${_listVehicle[index]['vehicle_name']}',
+                                                      '${DateFormat('dd-MM-yyyy').format(DateTime.parse(_listTransaction[index]['order_date']))}',
                                                       style: TextStyle(
                                                           fontFamily:
                                                               "NunitoSansBold",
@@ -134,19 +149,22 @@ class _VehicleScreenState extends State<VehicleScreen> {
                                                 ),
                                               ),
                                               SizedBox(width: 0.0, height: 0.0),
-                                              Expanded(
-                                                flex: 2,
-                                                child: Container(
-                                                    padding: EdgeInsets.only(
-                                                        top:
-                                                            size.getWidthPx(16),
-                                                        bottom:
-                                                            size.getWidthPx(16),
-                                                        left:
-                                                            size.getWidthPx(8)),
-                                                    child: Icon(Icons
-                                                        .arrow_forward_ios)),
-                                              ),
+                                              PopupMenuButton<int>(
+                                                  onSelected: (item) =>
+                                                      _onSelected(
+                                                          item,
+                                                          _listTransaction[
+                                                                  index][
+                                                              'transaction_id']),
+                                                  itemBuilder:
+                                                      (BuildContext context) {
+                                                    return _choise
+                                                        .map((String choise) {
+                                                      return PopupMenuItem<int>(
+                                                          value: 1,
+                                                          child: Text(choise));
+                                                    }).toList();
+                                                  }),
                                             ],
                                           ),
                                         ),
@@ -162,13 +180,13 @@ class _VehicleScreenState extends State<VehicleScreen> {
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: <Widget>[
-                                                Text("Police Number : ",
+                                                Text("Company : ",
                                                     style: TextStyle(
                                                         fontFamily:
                                                             "NunitoSansBold",
                                                         fontSize: 16)),
                                                 Text(
-                                                    "${_listVehicle[index]['police_number']}",
+                                                    "${_listTransaction[index]['company_name']}",
                                                     style: TextStyle(
                                                         fontFamily:
                                                             "NunitoSans",
@@ -189,13 +207,40 @@ class _VehicleScreenState extends State<VehicleScreen> {
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: <Widget>[
-                                                Text("Vehicle Type : ",
+                                                Text("Vehicle : ",
                                                     style: TextStyle(
                                                         fontFamily:
                                                             "NunitoSansBold",
                                                         fontSize: 16)),
                                                 Text(
-                                                    "${_listVehicle[index]['vehicle_type']}",
+                                                    "${_listTransaction[index]['vehicle_name']}",
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "NunitoSans",
+                                                        fontSize: 16)),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(16),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: <Widget>[
+                                                Text("Package : ",
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "NunitoSansBold",
+                                                        fontSize: 16)),
+                                                Text(
+                                                    "${_listTransaction[index]['package_name']}",
                                                     style: TextStyle(
                                                         fontFamily:
                                                             "NunitoSans",
@@ -211,19 +256,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
                               ),
                             ));
                           },
-                          itemCount: _listVehicle.length))
+                          itemCount: _listTransaction.length))
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AddVehicleScreen(
-                        customer_vehicle_id: null,
-                      ))).then(onGoBack);
-        },
       ),
       drawer: leftBar.leftBar(),
     );
@@ -231,6 +265,17 @@ class _VehicleScreenState extends State<VehicleScreen> {
 
   FutureOr onGoBack(dynamic value) {
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => VehicleScreen()));
+        context, MaterialPageRoute(builder: (context) => TransactionScreen()));
+  }
+
+  _onSelected(int item, String transaction_id) {
+    if (item == 1) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => PaymentList(
+                    transaction_id: transaction_id,
+                  )));
+    }
   }
 }
