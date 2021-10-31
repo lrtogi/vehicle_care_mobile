@@ -20,7 +20,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
   LeftBar leftBar = LeftBar();
   bool _loadData = false;
   var _listTransaction = [];
-  var _choise = ['pay'];
+  var _choise = ['Pay'];
   String _messageEmpty = '';
   late Screen size;
   TransactionService _transactionService = TransactionService();
@@ -80,6 +80,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                               top: size.hp(1),
                               bottom: size.hp(1.5)),
                           itemBuilder: (context, index) {
+                            // _choise.remove('Show Job');
                             return Container(
                                 child: InkWell(
                               onTap: () {
@@ -149,7 +150,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                                 ),
                                               ),
                                               SizedBox(width: 0.0, height: 0.0),
-                                              PopupMenuButton<int>(
+                                              PopupMenuButton<String>(
                                                   onSelected: (item) =>
                                                       _onSelected(
                                                           item,
@@ -158,10 +159,23 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                                               'transaction_id']),
                                                   itemBuilder:
                                                       (BuildContext context) {
+                                                    // _listTransaction[index]
+                                                    //             ['status'] ==
+                                                    //         2
+                                                    //     ? _choise.contains(
+                                                    //             'Show Job')
+                                                    //         ? ''
+                                                    //         : _choise
+                                                    //             .add('Show Job')
+                                                    //     : _choise.removeWhere(
+                                                    //         (item) =>
+                                                    //             item ==
+                                                    //             'Show Job');
                                                     return _choise
                                                         .map((String choise) {
-                                                      return PopupMenuItem<int>(
-                                                          value: 1,
+                                                      return PopupMenuItem<
+                                                              String>(
+                                                          value: choise,
                                                           child: Text(choise));
                                                     }).toList();
                                                   }),
@@ -268,8 +282,15 @@ class _TransactionScreenState extends State<TransactionScreen> {
         context, MaterialPageRoute(builder: (context) => TransactionScreen()));
   }
 
-  _onSelected(int item, String transaction_id) {
-    if (item == 1) {
+  _onSelected(String item, String transaction_id) {
+    if (item == 'Pay') {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => PaymentList(
+                    transaction_id: transaction_id,
+                  )));
+    } else if (item == 'Show Job') {
       Navigator.push(
           context,
           MaterialPageRoute(

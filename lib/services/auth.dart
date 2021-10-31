@@ -3,9 +3,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' show Client;
-// import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vehicle_care_2/constant/url.dart';
-import 'package:vehicle_care_2/db/db_helper.dart';
 // import 'package:dio/dio.dart' as Dio;
 import 'package:flutter/material.dart';
 import 'package:vehicle_care_2/models/user.dart';
@@ -14,7 +12,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Auth extends ChangeNotifier {
   Client client = new Client();
-  DbHelper _dbHelper = DbHelper();
 
   bool isLoggedIn = false;
   User _user;

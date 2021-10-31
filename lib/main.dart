@@ -77,9 +77,9 @@ class _MyHomePageState extends State<MyHomePage> {
               stops: [0.3, 0.6, 0.8],
               colors: [
                 // Colors are easy thanks to Flutter's Colors class.
-                Color(0xffE5E5E5),
-                Color(0xffA9A9A9),
-                Color(0xff979797),
+                Color(0xff0692CB),
+                Color(0xff0692CB),
+                Color(0xff0692CB),
               ],
             ),
           ),
@@ -87,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               Container(
                 child: Center(
-                  child: Image.asset('images/snapperlite.webp',
+                  child: Image.asset('images/logo.png',
                       height: MediaQuery.of(context).size.height / 4,
                       width: MediaQuery.of(context).size.width / 1.5),
                 ),

@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:vehicle_care_2/constant/responsive_screen.dart';
 import 'package:vehicle_care_2/services/profile_service.dart';
 import 'package:vehicle_care_2/services/transaction_service.dart';
@@ -25,6 +26,7 @@ class BookingScreen extends StatefulWidget {
 }
 
 class _BookingScreenState extends State<BookingScreen> {
+  GlobalKey globalKey = new GlobalKey();
   final _formKey = new GlobalKey<FormState>();
   final _scaffoldKey = new GlobalKey<ScaffoldState>();
   DateTime _datePicker;
@@ -33,12 +35,15 @@ class _BookingScreenState extends State<BookingScreen> {
   ProfileService _profileService = ProfileService();
   TransactionService _transactionService = TransactionService();
   bool _editable = true;
+  bool _showQR = false;
   var _hariIni = DateTime.now().day;
   var _bulanIni = DateTime.now().month;
   var _listVehicle = [];
   var _selectVehicle;
   var _listPackage = [];
   var _selectPackage;
+  int _status;
+  int _jobStatus;
   Screen size;
   bool _loadData = false;
   var _jobList = [];
@@ -66,18 +71,29 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   _getDetailTransaction() async {
+    setState(() {
+      _loadData = true;
+    });
     var _result =
         await _transactionService.getDetailTransaction(widget.transaction_id);
     if (_result['result']) {
       setState(() {
+        print(_result);
         _editable = _result['editable'];
         _selectVehicle = _result['data']['customer_vehicle_id'];
         _getPackageList();
         _controllerDate.text = _result['data']['order_date'];
         _selectPackage = _result['data']['package_id'];
         _priceController.text = _result['data']['total_price'];
+        _showQR = _result['showQR'];
+        _loadData = false;
+        _status = _result['data']['status'];
+        _jobStatus = _result['data']['job_status'];
       });
     } else {
+      setState(() {
+        _loadData = false;
+      });
       _showSnackBar(_result['message']);
       Future.delayed(Duration(seconds: 1), () {
         Navigator.pop(context);
@@ -87,196 +103,289 @@ class _BookingScreenState extends State<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bodyHeight = MediaQuery.of(context).size.height -
+        MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
       appBar: AppBar(title: Text('Booking ' + widget.company_name)),
       key: _scaffoldKey,
-      body: Form(
-          key: _formKey,
-          child: Column(
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(left: 13, right: 13, top: 16),
-                child: TextFormField(
-                  enabled: _editable,
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    suffixIcon: IconButton(
-                        icon: Icon(
-                          Icons.date_range_rounded,
-                          color: Colors.blueAccent,
-                        ),
-                        splashColor: Colors.blueAccent,
-                        onPressed: () {
-                          if (_editable) _selectStartDate(context);
-                        }),
-                    labelText: 'Date',
-                    labelStyle: TextStyle(fontFamily: "NunitoSans"),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
+      body: _loadData
+          ? Center(child: CircularProgressIndicator())
+          : Form(
+              key: _formKey,
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    margin: EdgeInsets.only(left: 13, right: 13, top: 16),
+                    child: TextFormField(
+                      enabled: _editable,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                            icon: Icon(
+                              Icons.date_range_rounded,
+                              color: Colors.blueAccent,
+                            ),
+                            splashColor: Colors.blueAccent,
+                            onPressed: () {
+                              if (_editable) _selectStartDate(context);
+                            }),
+                        labelText: 'Date',
+                        labelStyle: TextStyle(fontFamily: "NunitoSans"),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                      controller: _controllerDate,
+                      onTap: () {
+                        _selectStartDate(context);
+                      },
+                    ),
                   ),
-                  controller: _controllerDate,
-                  onTap: () {
-                    _selectStartDate(context);
-                  },
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(left: 16, right: 16, top: 16),
-                child: DropdownButtonFormField<String>(
-                  value: _selectVehicle,
-                  onChanged: _editable == false
-                      ? null
-                      : (newVal) {
-                          setState(() {
-                            _selectVehicle = newVal;
-                          });
-                          _getPackageList();
-                        },
-                  validator: (e) {
-                    if (e == null) {
-                      return "Choose vehicle";
-                    } else {
-                      return null;
-                    }
-                  },
-                  decoration: InputDecoration(
-                      enabled: _editable,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      labelText: 'Please choose your vehicle',
-                      labelStyle: TextStyle(
-                          fontFamily: 'NunitoSans', color: Colors.black),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10)),
-                  items: _listVehicle.map((value) {
-                    return DropdownMenuItem<String>(
-                      value: value['customer_vehicle_id'].toString(),
-                      child: Text(
-                        value['vehicle_name'].toString(),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(left: 16, right: 16, top: 16),
-                child: DropdownButtonFormField<String>(
-                  value: _selectPackage,
-                  onChanged: _editable == false
-                      ? null
-                      : (newVal) {
-                          setState(() {
-                            _selectPackage = newVal;
-                            _getPrice();
-                          });
-                        },
-                  validator: (e) {
-                    if (e == null) {
-                      return "Choose package";
-                    } else {
-                      return null;
-                    }
-                  },
-                  decoration: InputDecoration(
-                      enabled: _editable,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      labelText: 'Please choose a package',
-                      labelStyle: TextStyle(
-                          fontFamily: 'NunitoSans', color: Colors.black),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10)),
-                  items: _listPackage.map((value) {
-                    return DropdownMenuItem<String>(
-                      value: value['package_id'].toString(),
-                      child: Text(
-                        value['package_name'].toString(),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(left: 16, right: 16, top: 16),
-                child: TextFormField(
-                  enabled: false,
-                  controller: _priceController,
-                  decoration: new InputDecoration(
-                      labelText: 'Price',
-                      labelStyle: TextStyle(fontFamily: "NunitoSans"),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8))),
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.next,
-                  textCapitalization: TextCapitalization.sentences,
-                  validator: (e) {
-                    if (e.isEmpty) {
-                      return "Please fill name first";
-                    } else {
-                      return null;
-                    }
-                  },
-                ),
-              ),
-              SizedBox(height: 8),
-              _editable == false
-                  ? SizedBox(height: 0)
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                          Container(
-                            margin: const EdgeInsets.only(left: 20, right: 22),
-                            child: RaisedButton(
-                                onPressed: () {
-                                  _validation();
-                                },
-                                padding: EdgeInsets.only(top: 12, bottom: 12),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25)),
-                                color: Color(0xff0377fc),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Text("Save",
-                                        style: TextStyle(
-                                            fontFamily: "NuntioSans",
-                                            color: Colors.white)),
-                                  ],
-                                )),
+                  Container(
+                    margin: EdgeInsets.only(left: 16, right: 16, top: 16),
+                    child: DropdownButtonFormField<String>(
+                      value: _selectVehicle,
+                      onChanged: _editable == false
+                          ? null
+                          : (newVal) {
+                              setState(() {
+                                _selectVehicle = newVal;
+                              });
+                              _getPackageList();
+                            },
+                      validator: (e) {
+                        if (e == null) {
+                          return "Choose vehicle";
+                        } else {
+                          return null;
+                        }
+                      },
+                      decoration: InputDecoration(
+                          enabled: _editable,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          labelText: 'Please choose your vehicle',
+                          labelStyle: TextStyle(
+                              fontFamily: 'NunitoSans', color: Colors.black),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10)),
+                      items: _listVehicle.map((value) {
+                        return DropdownMenuItem<String>(
+                          value: value['customer_vehicle_id'].toString(),
+                          child: Text(
+                            value['vehicle_name'].toString(),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          widget.transaction_id == ''
-                              ? SizedBox(height: 0)
-                              : Container(
-                                  margin: const EdgeInsets.only(
-                                      left: 20, right: 22),
-                                  child: RaisedButton(
-                                      onPressed: () {
-                                        _onWillPop(
-                                            "Are you sure to delete this vehicle?\nData will be lost\n",
-                                            2);
-                                      },
-                                      padding:
-                                          EdgeInsets.only(top: 12, bottom: 12),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(25)),
-                                      color: Color(0xffff0000),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Text("Delete",
-                                              style: TextStyle(
-                                                  fontFamily: "NuntioSans",
-                                                  color: Colors.white)),
-                                        ],
-                                      )),
-                                ),
-                        ]),
-            ],
-          )),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 16, right: 16, top: 16),
+                    child: DropdownButtonFormField<String>(
+                      value: _selectPackage,
+                      onChanged: _editable == false
+                          ? null
+                          : (newVal) {
+                              setState(() {
+                                _selectPackage = newVal;
+                                _getPrice();
+                              });
+                            },
+                      validator: (e) {
+                        if (e == null) {
+                          return "Choose package";
+                        } else {
+                          return null;
+                        }
+                      },
+                      decoration: InputDecoration(
+                          enabled: _editable,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          labelText: 'Please choose a package',
+                          labelStyle: TextStyle(
+                              fontFamily: 'NunitoSans', color: Colors.black),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10)),
+                      items: _listPackage.map((value) {
+                        return DropdownMenuItem<String>(
+                          value: value['package_id'].toString(),
+                          child: Text(
+                            value['package_name'].toString(),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 16, right: 16, top: 16),
+                    child: TextFormField(
+                      enabled: false,
+                      controller: _priceController,
+                      decoration: new InputDecoration(
+                          labelText: 'Price',
+                          labelStyle: TextStyle(fontFamily: "NunitoSans"),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8))),
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.next,
+                      textCapitalization: TextCapitalization.sentences,
+                      validator: (e) {
+                        if (e.isEmpty) {
+                          return "Please fill name first";
+                        } else {
+                          return null;
+                        }
+                      },
+                    ),
+                  ),
+                  widget.transaction_id == ''
+                      ? SizedBox(height: 0)
+                      : _showQR == true
+                          ? Container(
+                              margin:
+                                  EdgeInsets.only(left: 22, right: 16, top: 16),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                      flex: 4,
+                                      child: Text("Job Status : ",
+                                          style: TextStyle(
+                                              fontFamily: "NunitoSans",
+                                              fontSize: 17))),
+                                  Expanded(
+                                      flex: 5,
+                                      child: Text(
+                                          _jobStatus == 0
+                                              ? 'Waiting'
+                                              : _jobStatus == 1
+                                                  ? 'On Process'
+                                                  : _jobStatus == 2
+                                                      ? 'Finished'
+                                                      : 'Taken',
+                                          style: TextStyle(
+                                              fontFamily: "NunitoSans",
+                                              fontSize: 17,
+                                              color: _jobStatus == 0
+                                                  ? Colors.orange
+                                                  : _jobStatus == 1
+                                                      ? Colors.purple
+                                                      : _jobStatus == 2
+                                                          ? Colors.blue
+                                                          : Colors.green),
+                                          textAlign: TextAlign.end))
+                                ],
+                              ))
+                          : Container(
+                              margin:
+                                  EdgeInsets.only(left: 22, right: 16, top: 16),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                      flex: 4,
+                                      child: Text("Status : ",
+                                          style: TextStyle(
+                                              fontFamily: "NunitoSans",
+                                              fontSize: 17))),
+                                  Expanded(
+                                      flex: 5,
+                                      child: Text(
+                                          _status == 0
+                                              ? 'Waiting Payment'
+                                              : _status == 1
+                                                  ? 'Waiting Approval'
+                                                  : _status == 2
+                                                      ? 'Approved'
+                                                      : 'Declined',
+                                          style: TextStyle(
+                                              fontFamily: "NunitoSans",
+                                              fontSize: 17,
+                                              color: _status == 0
+                                                  ? Colors.orange
+                                                  : _status == 1
+                                                      ? Colors.blue
+                                                      : _status == 2
+                                                          ? Colors.green
+                                                          : Colors.red),
+                                          textAlign: TextAlign.end))
+                                ],
+                              )),
+                  SizedBox(height: 8),
+                  _editable == false
+                      ? SizedBox(height: 0)
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                              Container(
+                                margin:
+                                    const EdgeInsets.only(left: 20, right: 22),
+                                child: RaisedButton(
+                                    onPressed: () {
+                                      _validation();
+                                    },
+                                    padding:
+                                        EdgeInsets.only(top: 12, bottom: 12),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(25)),
+                                    color: Color(0xff0377fc),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Text("Save",
+                                            style: TextStyle(
+                                                fontFamily: "NuntioSans",
+                                                color: Colors.white)),
+                                      ],
+                                    )),
+                              ),
+                              widget.transaction_id == ''
+                                  ? SizedBox(height: 0)
+                                  : Container(
+                                      margin: const EdgeInsets.only(
+                                          left: 20, right: 22),
+                                      child: RaisedButton(
+                                          onPressed: () {
+                                            _onWillPop(
+                                                "Are you sure to delete this vehicle?\nData will be lost\n",
+                                                2);
+                                          },
+                                          padding: EdgeInsets.only(
+                                              top: 12, bottom: 12),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(25)),
+                                          color: Color(0xffff0000),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              Text("Delete",
+                                                  style: TextStyle(
+                                                      fontFamily: "NuntioSans",
+                                                      color: Colors.white)),
+                                            ],
+                                          )),
+                                    ),
+                            ]),
+                  _showQR == false
+                      ? SizedBox(height: 0)
+                      : Container(
+                          child: Expanded(
+                            child: Center(
+                              child: RepaintBoundary(
+                                key: globalKey,
+                                child: QrImage(
+                                    data: widget.transaction_id,
+                                    size: 0.3 * bodyHeight),
+                              ),
+                            ),
+                          ),
+                        )
+                ],
+              )),
     );
   }
 
@@ -434,7 +543,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   _getPackageList() async {
     setState(() {
-      _loadData = true;
+      // _loadData = true;
       _listPackage = [];
       _selectPackage = null;
       _priceController.text = '';
@@ -444,14 +553,14 @@ class _BookingScreenState extends State<BookingScreen> {
         await _transactionService.getPackage(widget.company_id, _selectVehicle);
     if (_result['result']) {
       setState(() {
-        _loadData = false;
+        // _loadData = false;
         _listPackage = _result['data'];
       });
     } else {
       setState(() {
         _priceController.text = '';
         _listPackage = [];
-        _loadData = false;
+        // _loadData = false;
       });
       // _showSnackBar(_result['message']);
     }
@@ -459,7 +568,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   _getPrice() async {
     setState(() {
-      _loadData = true;
+      // _loadData = true;
     });
     var _result = await _transactionService.getDetailPackage(_selectPackage);
     if (_result['result']) {
