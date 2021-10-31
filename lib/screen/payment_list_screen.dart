@@ -3,7 +3,6 @@ import 'dart:async';
 import "package:flutter/material.dart";
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vehicle_care_2/constant/responsive_screen.dart';
 import 'package:vehicle_care_2/screen/company_menu.dart';
 import 'package:vehicle_care_2/screen/left_bar.dart';

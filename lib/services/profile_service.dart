@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' show Client;
 import 'package:http/http.dart' as http;
 import 'package:vehicle_care_2/constant/url.dart';
