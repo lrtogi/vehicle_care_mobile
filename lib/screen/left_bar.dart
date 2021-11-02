@@ -1,20 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import 'package:vehicle_care_2/screen/change_password.dart';
 import 'package:vehicle_care_2/screen/edit_profile.dart';
 import 'package:vehicle_care_2/screen/home_screen.dart';
+import 'package:vehicle_care_2/screen/job_menu.dart';
 import 'package:vehicle_care_2/screen/login_screen.dart';
+import 'package:vehicle_care_2/screen/register_to_company.dart';
 import 'package:vehicle_care_2/screen/transaction_screen.dart';
 import 'package:vehicle_care_2/screen/vehicle_screen.dart';
 import 'package:vehicle_care_2/services/auth.dart';
 
 class LeftBar extends StatefulWidget {
   LeftBar({Key? key}) : super(key: key);
-  Auth auth = Auth();
 
   @override
   _LeftBarState createState() => _LeftBarState();
-  leftBar() {
+}
+
+class _LeftBarState extends State<LeftBar> {
+  final storage = FlutterSecureStorage();
+  Auth auth = Auth();
+  bool isWorker = false;
+
+  _checkWorker() async {
+    String? token = await storage.read(key: 'token');
+    var _result = await auth.tryToken(token: token);
+    var _customerCompanyID = await storage.read(key: 'company_id');
+    if (_customerCompanyID != null) {
+      setState(() {
+        isWorker = true;
+      });
+    } else {
+      setState(() {
+        isWorker = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _checkWorker();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Drawer(child: Consumer<Auth>(builder: (context, auth, child) {
       if (!auth.authenticated) {
         return ListView(
@@ -56,12 +88,38 @@ class LeftBar extends StatefulWidget {
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => HomeScreen()));
                 }),
+            !isWorker
+                ? ListTile(
+                    title: Text("Register to Company"),
+                    leading: Icon(Icons.app_registration),
+                    onTap: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegisterToCompany()));
+                    })
+                : ListTile(
+                    title: Text("Jobs"),
+                    leading: Icon(Icons.work),
+                    onTap: () {
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => JobMenu()));
+                    }),
             ListTile(
                 title: Text("Edit Profile"),
                 leading: Icon(Icons.edit),
                 onTap: () {
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => EditProfile()));
+                }),
+            ListTile(
+                title: Text("Change Password"),
+                leading: Icon(Icons.vpn_key),
+                onTap: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChangePassword()));
                 }),
             ListTile(
                 title: Text("Your Vehicle"),
@@ -91,12 +149,5 @@ class LeftBar extends StatefulWidget {
         );
       }
     }));
-  }
-}
-
-class _LeftBarState extends State<LeftBar> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
   }
 }

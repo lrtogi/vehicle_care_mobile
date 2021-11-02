@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
@@ -262,7 +260,7 @@ class _EditProfileState extends State<EditProfile> {
                   ),
           ),
         ))),
-        drawer: leftBar.leftBar());
+        drawer: leftBar);
   }
 
   void _showSnackBar(String text) {

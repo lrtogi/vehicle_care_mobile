@@ -295,7 +295,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                                   ? 'Waiting Approval'
                                                   : _status == 2
                                                       ? 'Approved'
-                                                      : 'Declined',
+                                                      : _status == 3
+                                                          ? 'Declined'
+                                                          : 'Half Approve',
                                           style: TextStyle(
                                               fontFamily: "NunitoSans",
                                               fontSize: 17,
@@ -305,7 +307,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                                       ? Colors.blue
                                                       : _status == 2
                                                           ? Colors.green
-                                                          : Colors.red),
+                                                          : _status == 3
+                                                              ? Colors.red
+                                                              : Colors.orange),
                                           textAlign: TextAlign.end))
                                 ],
                               )),

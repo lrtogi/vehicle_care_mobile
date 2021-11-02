@@ -55,6 +55,29 @@ class ProfileService {
     }
   }
 
+  Future<Map> changePassword(Map creds) async {
+    String? token = await storage.read(key: 'token');
+    var _customer_id = await storage.read(key: 'customer_id');
+    var _url = BaseUrl.url;
+    try {
+      var _response = await _client.post(_url + "changePassword",
+          headers: {'Authorization': 'Bearer ' + token!}, body: creds);
+      final _data = jsonDecode(_response.body);
+      if (_data['result']) {
+        return {'result': true, 'message': _data['message']};
+      } else {
+        return {'result': false, 'message': _data['message']};
+      }
+    } catch (e) {
+      var _data = {
+        "result": false,
+        "message": "An error occured, please check your connection"
+      };
+      print(e);
+      return _data;
+    }
+  }
+
   Future<Map> getVehicle() async {
     String? token = await storage.read(key: 'token');
     var _customer_id = await storage.read(key: 'customer_id');

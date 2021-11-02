@@ -273,7 +273,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                           itemCount: _listTransaction.length))
         ],
       ),
-      drawer: leftBar.leftBar(),
+      drawer: leftBar,
     );
   }
 

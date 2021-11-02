@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' show Client;
 import 'package:vehicle_care_2/constant/url.dart';
+import 'package:vehicle_care_2/models/payment_method_model.dart';
 import 'package:vehicle_care_2/services/auth.dart';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart' as dio;
@@ -12,6 +13,25 @@ class PaymentService extends ChangeNotifier {
   Client _client = Client();
   Auth _auth = Auth();
   final storage = new FlutterSecureStorage();
+
+  Future<PaymentMethodModel> getPaymentMethod(String company_id) async {
+    String? token = await storage.read(key: 'token');
+    var _url = BaseUrl.url;
+    try {
+      var _response = await _client.post(_url + "paymentMethod/getByCompany",
+          headers: {'Authorization': 'Bearer ' + token!},
+          body: {'company_id': company_id});
+      final _data = jsonDecode(_response.body);
+      if (_data['result']) {
+        return PaymentMethodModel.fromJson(_data['data']);
+      } else {
+        throw Exception("Failed get Data");
+      }
+    } catch (e) {
+      print(e);
+      return PaymentMethodModel.fromJson([]);
+    }
+  }
 
   Future getPaymentList(String transaction_id) async {
     String? token = await storage.read(key: 'token');
@@ -69,6 +89,7 @@ class PaymentService extends ChangeNotifier {
     var customer_id = await storage.read(key: 'customer_id');
     var _url = BaseUrl.url;
     try {
+      var list;
       var _response = await _client.post(
           _url + "paymentMobile/getDetailTransaction",
           headers: {'Authorization': 'Bearer ' + token!},
@@ -91,7 +112,7 @@ class PaymentService extends ChangeNotifier {
   }
 
   Future<Map> savePayment(String payment_id, String transaction_id,
-      String total_payment, File file) async {
+      String total_payment, String payment_method_id, File file) async {
     print(total_payment);
     var _dio = dio.Dio();
     String? token = await storage.read(key: 'token');
@@ -106,7 +127,8 @@ class PaymentService extends ChangeNotifier {
             ? ""
             : await dio.MultipartFile.fromFile(_image.path, filename: fileName),
         "transaction_id": transaction_id,
-        "total_payment": total_payment
+        "total_payment": total_payment,
+        "payment_method_id": payment_method_id
       });
       var _response = await _dio.post(_url + "paymentMobile/save",
           data: formData,

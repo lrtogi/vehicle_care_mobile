@@ -225,7 +225,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
                       ))).then(onGoBack);
         },
       ),
-      drawer: leftBar.leftBar(),
+      drawer: leftBar,
     );
   }
 
