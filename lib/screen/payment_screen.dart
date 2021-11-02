@@ -8,8 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:vehicle_care_2/blocs/payment_bloc.dart';
 import 'package:vehicle_care_2/constant/responsive_screen.dart';
 import 'package:vehicle_care_2/constant/url.dart';
+import 'package:vehicle_care_2/models/payment_method_model.dart';
 import 'package:vehicle_care_2/services/payment_service.dart';
 import 'package:vehicle_care_2/services/profile_service.dart';
 import 'package:vehicle_care_2/services/transaction_service.dart';
@@ -25,6 +27,7 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
+  final _bloc = new PaymentBloc();
   final _formKey = new GlobalKey<FormState>();
   final _scaffoldKey = new GlobalKey<ScaffoldState>();
   String _date;
@@ -34,6 +37,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   TextEditingController _paymentController = TextEditingController();
   PaymentService _paymentService = PaymentService();
   TransactionService _transactionService = TransactionService();
+  var _paymentMethodController;
   Screen size;
   String _url = "${BaseUrl.imageUrl}";
   bool _loadData = false;
@@ -42,6 +46,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   File _fileAfterResize;
   File imageFile;
   String _imageUrl = "";
+  var _paymentMethod = [];
+  List<Item> _items;
+  List<Item> _list;
 
   @override
   void initState() {
@@ -50,6 +57,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
     if (widget.payment_id != '') {
       _getDetailPayment();
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _bloc.dispose();
   }
 
   _getDetailTransaction() async {
@@ -66,11 +79,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
         _date = _result['data']['order_date'];
         _package = _result['data']['package_name'];
         _price = _result['data']['total_price'];
+        _paymentMethod = _result['paymentMethod'];
+        _items = generateItems(_paymentMethod.length, _paymentMethod);
       });
     } else {
       setState(() {
         _loadData = false;
       });
+      _showSnackBarFailed(_result['message']);
+      _goBackTimer();
     }
   }
 
@@ -99,6 +116,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       }
       setState(() {
         _paymentController.text = _result['data']['total_payment'];
+        _paymentMethodController = _result['data']['payment_method_id'];
         _loadData = false;
         _processImage = false;
       });
@@ -247,6 +265,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               SizedBox(height: size.hp(1.5)),
                               Divider(color: Colors.black, height: 1),
                               SizedBox(height: size.hp(1.5)),
+                              _paymentMethod.isEmpty
+                                  ? SizedBox(height: 0)
+                                  : _buildPanel(),
+                              SizedBox(height: size.hp(1.5)),
+                              Divider(color: Colors.black, height: 1),
+                              SizedBox(height: size.hp(1.5)),
                               SizedBox(height: 8),
                               Row(
                                 children: [
@@ -379,7 +403,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                     ),
                                   ),
                                 ],
-                              )
+                              ),
                             ])),
                   ],
                 )),
@@ -439,6 +463,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         _showSnackBarFailed('Please input your paynent');
       } else if (imageFile == null) {
         _showSnackBarFailed("Please take a picture of your payment");
+      } else if (_paymentMethodController == null) {
+        _showSnackBarFailed("Please select payment method");
       } else
         _onWillPop();
     } else {
@@ -452,8 +478,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
     setState(() {
       _loadData = true;
     });
-    var _result = await _paymentService.savePayment(widget.payment_id,
-        widget.transaction_id, _paymentController.text, imageFile);
+    var _result = await _paymentService.savePayment(
+        widget.payment_id,
+        widget.transaction_id,
+        _paymentController.text,
+        _paymentMethodController,
+        imageFile);
     if (_result['result']) {
       setState(() {
         _loadData = false;
@@ -564,7 +594,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   _showSnackBarFailed(String text) {
     _scaffoldKey.currentState.showSnackBar(new SnackBar(
-        content: new Text(text), behavior: SnackBarBehavior.floating));
+      content: new Text(text),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.red,
+    ));
   }
 
   _goBackTimer() {
@@ -573,4 +606,77 @@ class _PaymentScreenState extends State<PaymentScreen> {
       Navigator.pop(context);
     });
   }
+
+  Widget _buildPanel() {
+    return ExpansionPanelList(
+      expansionCallback: (int index, bool isExpanded) {
+        setState(() {
+          _items[index].isExpanded = !isExpanded;
+          for (final _i in _items) {
+            if (_i.id == _items[index].id) {
+              continue;
+            }
+            _i.isExpanded = false;
+          }
+        });
+      },
+      children: _items.map((Item item) {
+        return new ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(item.headerValue),
+            );
+          },
+          body: ListTile(
+              title: RadioListTile(
+                title: Text(item.headerValue),
+                value: item.id,
+                groupValue: _paymentMethodController,
+                onChanged: (value) {
+                  setState(() {
+                    _paymentMethodController = value;
+                  });
+                },
+              ),
+              subtitle: Text(item.expandedValue + ' a/n ' + item.on_behalf_of,
+                  style: TextStyle(
+                      fontFamily: "NunitoSansBold",
+                      color: Colors.black,
+                      fontSize: 14)),
+              // trailing: const Icon(Icons.delete),
+              onTap: () {
+                setState(() {
+                  _items.removeWhere((Item currentItem) => item == currentItem);
+                });
+              }),
+          isExpanded: item.isExpanded,
+        );
+      }).toList(),
+    );
+  }
+}
+
+class Item {
+  Item({
+    this.id,
+    this.expandedValue,
+    this.headerValue,
+    this.on_behalf_of,
+    this.isExpanded = false,
+  });
+  String id;
+  String expandedValue;
+  String headerValue;
+  String on_behalf_of;
+  bool isExpanded;
+}
+
+List<Item> generateItems(int numberOfItems, List paymentMethod) {
+  return List.generate(numberOfItems, (int index) {
+    return Item(
+        id: paymentMethod[index]['payment_method_id'],
+        headerValue: paymentMethod[index]['method'],
+        expandedValue: paymentMethod[index]['value'],
+        on_behalf_of: paymentMethod[index]['on_behalf_of']);
+  });
 }

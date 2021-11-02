@@ -228,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemCount: _listCompany.length))
         ],
       ),
-      drawer: leftBar.leftBar(),
+      drawer: leftBar,
     );
   }
 

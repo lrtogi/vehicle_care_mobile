@@ -1,4 +1,3 @@
-// ignore_for_file: import_of_legacy_library_into_null_safe
 // @dart=2.9
 import 'dart:convert';
 
@@ -125,6 +124,8 @@ class Auth extends ChangeNotifier {
           storeToken(token: token);
           await storage.write(
               key: 'customer_id', value: _responseData['customer_id']);
+          await storage.write(
+              key: 'company_id', value: _responseData['company_id']);
           this._token = token;
           var _result = {"result": true, "message": "Token valid"};
           return _result;
@@ -165,5 +166,7 @@ class Auth extends ChangeNotifier {
     this.isLoggedIn = false;
     this._token = null;
     await storage.delete(key: 'token');
+    await storage.delete(key: 'customer_id');
+    await storage.delete(key: 'company_id');
   }
 }

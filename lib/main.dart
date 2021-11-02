@@ -29,11 +29,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'Vehicle Care',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Vehicle Care'),
     );
   }
 }
@@ -54,13 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-//    _checkVersion();
-//    _checkExpiredDate();
     _initDb();
-//    Timer(Duration(seconds: 2), () {
-//      Navigator.pushReplacement(
-//          context, MaterialPageRoute(builder: (context) => PhoneRegister()));
-//    });
   }
 
   @override
@@ -107,7 +102,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _initDb() async {
-    print('masuk init db');
     Timer(Duration(seconds: 2), () {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => LoginScreen()));

@@ -28,15 +28,13 @@ class CompanyItem {
     _picEmail = result['pic_email'];
   }
 
-  String get flagApprove => _companyId;
+  String get companyId => _companyId;
 
-  String get reason => _companyName;
+  String get companyName => _companyName;
 
-  String get leaveId => _companyId;
+  String get picEmail => _picEmail;
 
-  String get leaveType => _noTelp;
+  String get noTelp => _noTelp;
 
-  String get endHour => _alamat;
-
-  String get startHour => _picEmail;
+  String get alamat => _alamat;
 }
