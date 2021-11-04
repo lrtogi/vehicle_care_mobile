@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:vehicle_care_2/constant/responsive_screen.dart';
+import 'package:vehicle_care_2/screen/qr_scanner_take_job.dart';
 import 'package:vehicle_care_2/screen/worker_job_detail_screen.dart';
 import 'package:vehicle_care_2/services/job_service.dart';
 
@@ -32,13 +33,15 @@ class _WorkerJobListScreenState extends State<WorkerJobListScreen> {
     });
     var _result = await _jobService.getWorkerJobList();
     if (_result['result']) {
-      setState(() {
-        _listJob = _result['data'];
-        _loadData = false;
-        if (_listJob.isEmpty) {
-          _messageEmpty = "No Job List";
-        }
-      });
+      if (this.mounted) {
+        setState(() {
+          _listJob = _result['data'];
+          _loadData = false;
+          if (_listJob.isEmpty) {
+            _messageEmpty = "No Job List";
+          }
+        });
+      }
     } else {
       setState(() {
         _loadData = false;
@@ -85,7 +88,7 @@ class _WorkerJobListScreenState extends State<WorkerJobListScreen> {
                                             WorkerJobDetailScreen(
                                               transaction_id: _listJob[index]
                                                   ['transaction_id'],
-                                            ))).then(onGoBack);
+                                            )));
                                 ;
                               },
                               child: ListTile(
@@ -101,6 +104,33 @@ class _WorkerJobListScreenState extends State<WorkerJobListScreen> {
                           },
                           itemCount: _listJob.length))
                 ]),
+      bottomNavigationBar: BottomAppBar(
+        elevation: 0.0,
+        child: _loadData
+            ? Container(child: Center(child: CircularProgressIndicator()))
+            : Padding(
+                padding: EdgeInsets.only(
+                    top: size.hp(2),
+                    bottom: size.hp(2),
+                    left: size.wp(2.5),
+                    right: size.wp(2.5)),
+                child: RaisedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => QRScannerTakeJob()));
+                    },
+                    padding:
+                        EdgeInsets.only(top: size.hp(2), bottom: size.hp(2)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25)),
+                    color: Color(0xff0692CB),
+                    child: Text("Take Job",
+                        style: TextStyle(
+                            fontFamily: "NuntioSans", color: Colors.white))),
+              ),
+      ),
     );
   }
 

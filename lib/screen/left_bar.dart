@@ -29,9 +29,11 @@ class _LeftBarState extends State<LeftBar> {
     var _result = await auth.tryToken(token: token);
     var _customerCompanyID = await storage.read(key: 'company_id');
     if (_customerCompanyID != null) {
-      setState(() {
-        isWorker = true;
-      });
+      if (this.mounted) {
+        setState(() {
+          isWorker = true;
+        });
+      }
     } else {
       setState(() {
         isWorker = false;

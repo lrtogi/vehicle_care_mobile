@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vehicle_care_2/screen/left_bar.dart';
+import 'package:vehicle_care_2/screen/qr_scanner_submit_vehicle.dart';
 import 'package:vehicle_care_2/screen/qr_scanner_take_job.dart';
 import 'package:vehicle_care_2/screen/worker_job_list_screen.dart';
 
@@ -110,7 +111,12 @@ class _JobMenuState extends State<JobMenu> {
             margin:
                 EdgeInsets.only(top: MediaQuery.of(context).size.height / 25),
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => QRScannerSubmitVehicle()));
+              },
               child: Container(
                 margin: EdgeInsets.symmetric(
                     horizontal: MediaQuery.of(context).size.width / 27),
@@ -128,7 +134,7 @@ class _JobMenuState extends State<JobMenu> {
                       children: <Widget>[
                         SizedBox(width: MediaQuery.of(context).size.width / 37),
                         Text(
-                          "Submit Job",
+                          "Submit Vehicle",
                           style: TextStyle(
                               fontFamily: "NunitoSansBold", fontSize: 24),
                         )

@@ -139,7 +139,7 @@ class TransactionService extends ChangeNotifier {
       if (_data['result']) {
         return _data;
       } else {
-        var _result = {'result': false, 'message': 'Failed to retrieve data'};
+        var _result = {'result': false, 'message': _data['message']};
         return _result;
       }
     } catch (e) {

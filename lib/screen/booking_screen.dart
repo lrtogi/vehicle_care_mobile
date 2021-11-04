@@ -32,6 +32,8 @@ class _BookingScreenState extends State<BookingScreen> {
   DateTime _datePicker;
   TextEditingController _controllerDate = TextEditingController();
   TextEditingController _priceController = TextEditingController();
+  TextEditingController _start = TextEditingController();
+  TextEditingController _end = TextEditingController();
   ProfileService _profileService = ProfileService();
   TransactionService _transactionService = TransactionService();
   bool _editable = true;
@@ -89,6 +91,8 @@ class _BookingScreenState extends State<BookingScreen> {
         _loadData = false;
         _status = _result['data']['status'];
         _jobStatus = _result['data']['job_status'];
+        _start.text = _result['data']['start'];
+        _end.text = _result['data']['end'];
       });
     } else {
       setState(() {
@@ -238,6 +242,52 @@ class _BookingScreenState extends State<BookingScreen> {
                       },
                     ),
                   ),
+                  _status != 2
+                      ? SizedBox(
+                          height: 0,
+                        )
+                      : Column(
+                          children: [
+                            Container(
+                              margin:
+                                  EdgeInsets.only(left: 16, right: 16, top: 16),
+                              child: TextFormField(
+                                enabled: false,
+                                controller: _start,
+                                decoration: new InputDecoration(
+                                    labelText: 'Start',
+                                    labelStyle:
+                                        TextStyle(fontFamily: "NunitoSans"),
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8))),
+                                keyboardType: TextInputType.datetime,
+                                textInputAction: TextInputAction.next,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                              ),
+                            ),
+                            Container(
+                              margin:
+                                  EdgeInsets.only(left: 16, right: 16, top: 16),
+                              child: TextFormField(
+                                enabled: false,
+                                controller: _end,
+                                decoration: new InputDecoration(
+                                    labelText: 'End',
+                                    labelStyle:
+                                        TextStyle(fontFamily: "NunitoSans"),
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8))),
+                                keyboardType: TextInputType.datetime,
+                                textInputAction: TextInputAction.next,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                              ),
+                            ),
+                          ],
+                        ),
                   widget.transaction_id == ''
                       ? SizedBox(height: 0)
                       : _showQR == true

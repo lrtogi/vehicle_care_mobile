@@ -22,7 +22,7 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
   late Screen size;
   late String _vehicle_name;
   late String _package_name;
-  late bool _status;
+  late int _status;
   late String _police_number;
   late String _customer_name;
 
@@ -33,10 +33,11 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
 
   late List<int> imageBytes;
   late File _fileAfterResize;
-  late File imageFile;
+  File? imageFile;
 
   void initState() {
     super.initState();
+    _getData();
   }
 
   _getData() async {
@@ -45,37 +46,47 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
     });
     var _result = await _jobService.getJobDetail(widget.transaction_id);
     if (_result['result']) {
-      setState(() async {
-        _jobData = _result['data'];
-        _vehicle_name = _result['data']['vehicle_name'];
-        _customer_name = _result['data']['customer_name'];
-        _police_number = _result['data']['police_number'];
-        _status = _result['data']['status'];
-        if (_result['data']['file'] != null) {
-          final dir = await path_provider.getTemporaryDirectory();
-          _fileAfterResize = File("${dir.absolute.path}/payment.png");
-          final ByteData imageData = await NetworkAssetBundle(
-                  Uri.parse("${BaseUrl.imageUrl}" + _result['data']['file']))
-              .load("");
-          final Uint8List bytes = imageData.buffer.asUint8List();
-          _fileAfterResize.writeAsBytesSync(bytes);
-          final targetPath = dir.absolute.path + "/payment.jpg";
-          final imgFile =
-              await testCompressAndGetFile(_fileAfterResize, targetPath);
+      if (this.mounted) {
+        setState(() {
+          _vehicle_name = _result['data']['vehicle_name'];
+          _customer_name = _result['data']['customer_name'];
+          _police_number = _result['data']['police_number'];
+          _package_name = _result['data']['package_name'];
+          _status = _result['data']['status'];
+        });
+      }
+      if (_result['data']['vehicle_photo_url'] != null) {
+        final dir = await path_provider.getTemporaryDirectory();
+        _fileAfterResize = File("${dir.absolute.path}/vehicleJob.png");
+        final ByteData imageData = await NetworkAssetBundle(Uri.parse(
+                "${BaseUrl.imageUrl}" + _result['data']['vehicle_photo_url']))
+            .load("");
+        final Uint8List bytes = imageData.buffer.asUint8List();
+        _fileAfterResize.writeAsBytesSync(bytes);
+        final targetPath = dir.absolute.path + "/vehicleJob.jpg";
+        final imgFile =
+            await testCompressAndGetFile(_fileAfterResize, targetPath);
+        if (this.mounted) {
           setState(() {
             imageFile = imgFile!;
           });
         }
-        _loadData = false;
-      });
-    } else {
-      setState(() {
-        _loadData = false;
-        _showSnackBarFailed(_result['message']);
-        Future.delayed(Duration(seconds: 1), () {
-          Navigator.pop(context);
+      }
+      if (this.mounted) {
+        setState(() {
+          _loadData = false;
         });
-      });
+      }
+    } else {
+      if (this.mounted) {
+        setState(() {
+          _loadData = false;
+          _showSnackBarFailed(_result['message']);
+          Future.delayed(Duration(seconds: 1), () {
+            Navigator.pop(context);
+          });
+        });
+      }
     }
   }
 
@@ -220,10 +231,89 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
                                                         BorderRadius.circular(
                                                             8.0),
                                                     child:
-                                                        Image.file(imageFile)),
+                                                        Image.file(imageFile!)),
                                               ],
                                             )),
                                       ),
+                                SizedBox(height: 8),
+                                _status == 3
+                                    ? SizedBox(
+                                        height: 0,
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                            _status == 2
+                                                ? SizedBox(height: 0)
+                                                : Container(
+                                                    child: RaisedButton(
+                                                        onPressed: () {
+                                                          _finishJob();
+                                                        },
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                top: 12,
+                                                                bottom: 12),
+                                                        shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        25)),
+                                                        color: Colors.green,
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: <Widget>[
+                                                            Text("Finish",
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "NuntioSans",
+                                                                    color: Colors
+                                                                        .white)),
+                                                          ],
+                                                        )),
+                                                  ),
+                                            _status == 1
+                                                ? SizedBox(height: 0)
+                                                : Container(
+                                                    child: RaisedButton(
+                                                        onPressed: () {
+                                                          _backToProcessJob();
+                                                        },
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                                right: 20,
+                                                                left: 20,
+                                                                top: 12,
+                                                                bottom: 12),
+                                                        shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        25)),
+                                                        color: Colors.redAccent,
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.max,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: <Widget>[
+                                                            Text(
+                                                                "Rollback Process",
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "NuntioSans",
+                                                                    color: Colors
+                                                                        .white)),
+                                                          ],
+                                                        )),
+                                                  ),
+                                          ]),
                               ]))
                     ],
                   )));
@@ -236,6 +326,44 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
     return result;
   }
 
+  _finishJob() async {
+    setState(() {
+      _loadData = true;
+    });
+    var _result = await _jobService.changeJobStatus(widget.transaction_id, 2);
+    if (_result['result']) {
+      setState(() {
+        _loadData = false;
+        _showSnackBarSuccess(_result['message']);
+        _refreshPage();
+      });
+    } else {
+      setState(() {
+        _loadData = false;
+        _showSnackBarFailed(_result['message']);
+      });
+    }
+  }
+
+  _backToProcessJob() async {
+    setState(() {
+      _loadData = true;
+    });
+    var _result = await _jobService.changeJobStatus(widget.transaction_id, 1);
+    if (_result['result']) {
+      setState(() {
+        _loadData = false;
+        _showSnackBarSuccess(_result['message']);
+        _refreshPage();
+      });
+    } else {
+      setState(() {
+        _loadData = false;
+        _showSnackBarFailed(_result['message']);
+      });
+    }
+  }
+
   _showSnackBarSuccess(String text) {
     _scaffoldKey.currentState!.showSnackBar(new SnackBar(
         content: new Text(text), behavior: SnackBarBehavior.floating));
@@ -243,11 +371,13 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
   }
 
   _refreshPage() {
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                WorkerJobDetailScreen(transaction_id: widget.transaction_id)));
+    Future.delayed(Duration(seconds: 1), () {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => WorkerJobDetailScreen(
+                  transaction_id: widget.transaction_id)));
+    });
   }
 
   _showSnackBarFailed(String text) {

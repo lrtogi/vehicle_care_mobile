@@ -6,14 +6,14 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:vehicle_care_2/screen/worker_job_detail_screen.dart';
 import 'package:vehicle_care_2/services/job_service.dart';
 
-class QRScannerTakeJob extends StatefulWidget {
-  QRScannerTakeJob({Key? key}) : super(key: key);
+class QRScannerSubmitVehicle extends StatefulWidget {
+  QRScannerSubmitVehicle({Key? key}) : super(key: key);
 
   @override
-  _QRScannerTakeJobState createState() => _QRScannerTakeJobState();
+  _QRScannerSubmitVehicleState createState() => _QRScannerSubmitVehicleState();
 }
 
-class _QRScannerTakeJobState extends State<QRScannerTakeJob> {
+class _QRScannerSubmitVehicleState extends State<QRScannerSubmitVehicle> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final _scaffoldKey = new GlobalKey<ScaffoldState>();
   bool _loadResult = false;
@@ -169,7 +169,7 @@ class _QRScannerTakeJobState extends State<QRScannerTakeJob> {
     var _result = await _jobService.checkJob(transaction_id);
     if (_result['result']) {
       if (this.mounted) {
-        var _result2 = await _jobService.changeJobStatus(transaction_id, 1);
+        var _result2 = await _jobService.changeJobStatus(transaction_id, 3);
         if (_result2['result']) {
           if (this.mounted) {
             setState(() {

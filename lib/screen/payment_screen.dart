@@ -42,6 +42,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String _url = "${BaseUrl.imageUrl}";
   bool _loadData = false;
   bool _processImage = false;
+  int _paymentStatus;
   List<int> imageBytes;
   File _fileAfterResize;
   File imageFile;
@@ -119,6 +120,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       setState(() {
         _paymentController.text = _result['data']['total_payment'];
         _paymentMethodController = _result['data']['payment_method_id'];
+        _paymentStatus = _result['data']['approved'];
         _loadData = false;
         _processImage = false;
       });
@@ -339,73 +341,87 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                                           //         _fileAfterResize = null;
                                                           //       });
                                                           //     }),
-                                                          IconButton(
-                                                              icon: Icon(
-                                                                  Icons.delete,
-                                                                  color: Colors
-                                                                      .red),
-                                                              onPressed: () {
-                                                                setState(() {
-                                                                  imageFile =
-                                                                      null;
-                                                                  imageCache
-                                                                      .clear();
-                                                                  _fileAfterResize =
-                                                                      null;
-                                                                });
-                                                              }),
+                                                          _paymentStatus != 0
+                                                              ? SizedBox(
+                                                                  height: 0,
+                                                                )
+                                                              : IconButton(
+                                                                  icon: Icon(
+                                                                      Icons
+                                                                          .delete,
+                                                                      color: Colors
+                                                                          .red),
+                                                                  onPressed:
+                                                                      () {
+                                                                    setState(
+                                                                        () {
+                                                                      imageFile =
+                                                                          null;
+                                                                      imageCache
+                                                                          .clear();
+                                                                      _fileAfterResize =
+                                                                          null;
+                                                                    });
+                                                                  }),
                                                       right: 4,
                                                       top: 4),
                                                 ],
                                               )),
                                         ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                        left: 0, right: 22, top: 16),
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        _checkData();
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                          onPrimary: const Color(0xff4f1ed2),
-                                          shadowColor: const Color(0xff4f1ed2),
-                                          elevation: 18,
-                                          padding: EdgeInsets.zero,
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(15))),
-                                      child: Ink(
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                              colors: [
-                                                Color(0xff4f1ed2),
-                                                Color(0xff4f1ed2)
-                                              ]),
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                        ),
-                                        child: Container(
-                                          width: 80,
-                                          height: 50,
-                                          alignment: Alignment.center,
-                                          child: const Text(
-                                            'Save',
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.white,
-                                              letterSpacing: 1,
+                              _paymentStatus != 0
+                                  ? SizedBox(
+                                      height: 0,
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          margin: const EdgeInsets.only(
+                                              left: 0, right: 22, top: 16),
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              _checkData();
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                                onPrimary:
+                                                    const Color(0xff4f1ed2),
+                                                shadowColor:
+                                                    const Color(0xff4f1ed2),
+                                                elevation: 18,
+                                                padding: EdgeInsets.zero,
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15))),
+                                            child: Ink(
+                                              decoration: BoxDecoration(
+                                                gradient: const LinearGradient(
+                                                    colors: [
+                                                      Color(0xff4f1ed2),
+                                                      Color(0xff4f1ed2)
+                                                    ]),
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                              child: Container(
+                                                width: 80,
+                                                height: 50,
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                  'Save',
+                                                  style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: Colors.white,
+                                                    letterSpacing: 1,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                  ),
-                                ],
-                              ),
                             ])),
                   ],
                 )),
