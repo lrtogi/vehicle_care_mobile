@@ -53,6 +53,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   void initState() {
     super.initState();
+    imageFile = null;
     _getDetailTransaction();
     if (widget.payment_id != '') {
       _getDetailPayment();
@@ -95,6 +96,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     setState(() {
       _loadData = true;
       _processImage = true;
+      imageFile = null;
     });
     var _result = await _paymentService.getDetailPayment(widget.payment_id);
     print(_result);

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:vehicle_care_2/screen/worker_job_detail_screen.dart';
+import 'package:vehicle_care_2/services/job_service.dart';
 
 class QRScannerTakeJob extends StatefulWidget {
   QRScannerTakeJob({Key? key}) : super(key: key);
@@ -14,6 +16,10 @@ class QRScannerTakeJob extends StatefulWidget {
 class _QRScannerTakeJobState extends State<QRScannerTakeJob> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final _scaffoldKey = new GlobalKey<ScaffoldState>();
+  bool _loadResult = false;
+  bool found = false;
+  bool _showResult = false;
+  JobService _jobService = JobService();
 
   Barcode? result;
   QRViewController? controller;
@@ -53,7 +59,8 @@ class _QRScannerTakeJobState extends State<QRScannerTakeJob> {
             key: qrKey,
             onQRViewCreated: _onQRViewCreated,
           ),
-          Positioned(top: 10, child: buildResult()),
+          _showResult ? buildResult() : SizedBox(height: 0),
+          _loadResult ? loadResult() : SizedBox(height: 0),
           Positioned(bottom: 10, child: buildButton()),
         ],
       ),
@@ -61,15 +68,25 @@ class _QRScannerTakeJobState extends State<QRScannerTakeJob> {
   }
 
   buildResult() {
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-          color: Colors.white30, borderRadius: BorderRadius.circular(8)),
-      child: Text(
-        result != null ? 'Result : ${result?.code}' : 'Scan a code!',
-        maxLines: 3,
-        style: TextStyle(color: Colors.white),
-      ),
+    return Positioned(
+        top: 10,
+        child: Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+              color: Colors.white30, borderRadius: BorderRadius.circular(8)),
+          child: Text(
+            found ? 'Result Found' : 'Data Not Found',
+            maxLines: 3,
+            style: TextStyle(color: Colors.white),
+          ),
+        ));
+  }
+
+  loadResult() {
+    return SizedBox(
+      child: CircularProgressIndicator(),
+      height: 100.0,
+      width: 100.0,
     );
   }
 
@@ -127,7 +144,40 @@ class _QRScannerTakeJobState extends State<QRScannerTakeJob> {
     controller.scannedDataStream.listen((scanData) {
       setState(() {
         result = scanData;
+        controller.pauseCamera();
+        _checkData(result!.code.toString());
+        if (found) {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => WorkerJobDetailScreen(
+                      transaction_id: result!.code.toString())));
+        } else {
+          controller.resumeCamera();
+        }
       });
     });
+  }
+
+  _checkData(transaction_id) async {
+    setState(() {
+      _loadResult = true;
+    });
+    var _result = await _jobService.checkJob(transaction_id);
+    if (_result['result']) {
+      if (this.mounted) {
+        setState(() {
+          _loadResult = false;
+          found = true;
+          _showResult = true;
+        });
+      }
+    } else {
+      setState(() {
+        _loadResult = false;
+        found = false;
+        _showResult = true;
+      });
+    }
   }
 }
