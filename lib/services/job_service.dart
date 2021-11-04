@@ -92,4 +92,28 @@ class JobService extends ChangeNotifier {
       return _data;
     }
   }
+
+  Future getJobDetail(String transaction_id) async {
+    String token = await storage.read(key: 'token');
+    var _url = BaseUrl.url;
+    try {
+      var _response = await _client.post(_url + "job/checkJob",
+          headers: {'Authorization': 'Bearer ' + token},
+          body: {'transaction_id': transaction_id});
+      final _data = jsonDecode(_response.body);
+      if (_data['result']) {
+        return _data;
+      } else {
+        var _result = {'result': false, 'message': _data['message']};
+        return _result;
+      }
+    } catch (e) {
+      print(e);
+      var _data = {
+        "result": false,
+        "message": "An error occured, please check your connection"
+      };
+      return _data;
+    }
+  }
 }
