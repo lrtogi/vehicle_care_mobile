@@ -42,7 +42,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String _url = "${BaseUrl.imageUrl}";
   bool _loadData = false;
   bool _processImage = false;
-  int _paymentStatus;
+  int _paymentStatus = 0;
   List<int> imageBytes;
   File _fileAfterResize;
   File imageFile;
@@ -326,7 +326,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                                           BorderRadius.circular(
                                                               8.0),
                                                       child: Image.file(
-                                                          imageFile)),
+                                                        imageFile,
+                                                        width: 117,
+                                                      )),
                                                   Positioned(
                                                       child:
                                                           // InkWell(
@@ -570,7 +572,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<File> testCompressAndGetFile(File file, String targetPath) async {
     final result = await FlutterImageCompress.compressAndGetFile(
         file.absolute.path, targetPath,
-        quality: 70, minHeight: 170, minWidth: 113);
+        quality: 100);
     return result;
   }
 

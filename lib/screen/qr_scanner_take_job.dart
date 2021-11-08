@@ -169,25 +169,12 @@ class _QRScannerTakeJobState extends State<QRScannerTakeJob> {
     var _result = await _jobService.checkJob(transaction_id);
     if (_result['result']) {
       if (this.mounted) {
-        var _result2 = await _jobService.changeJobStatus(transaction_id, 1);
-        if (_result2['result']) {
-          if (this.mounted) {
-            setState(() {
-              _loadResult = false;
-              found = true;
-              _messageResult = 'Data Found';
-              _showResult = true;
-            });
-          }
-        } else {
-          if (this.mounted) {
-            setState(() {
-              _loadResult = false;
-              _messageResult = _result2['message'];
-              _showResult = true;
-            });
-          }
-        }
+        setState(() {
+          _loadResult = false;
+          found = true;
+          _messageResult = 'Data Found';
+          _showResult = true;
+        });
       }
     } else {
       setState(() {

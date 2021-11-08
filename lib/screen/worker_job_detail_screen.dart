@@ -25,6 +25,7 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
   late int _status;
   late String _police_number;
   late String _customer_name;
+  late String _order_date;
 
   var _jobData = [];
   final _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -48,6 +49,7 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
     if (_result['result']) {
       if (this.mounted) {
         setState(() {
+          _order_date = _result['data']['order_date'];
           _vehicle_name = _result['data']['vehicle_name'];
           _customer_name = _result['data']['customer_name'];
           _police_number = _result['data']['police_number'];
@@ -94,7 +96,7 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
   Widget build(BuildContext context) {
     size = Screen(MediaQuery.of(context).size);
     return Scaffold(
-        appBar: AppBar(title: Text('Payment')),
+        appBar: AppBar(title: Text('Detail Job')),
         key: _scaffoldKey,
         body: Form(
             key: _formKey,
@@ -108,6 +110,27 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
+                                SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                        flex: 4,
+                                        child: Text("Order Date",
+                                            style: TextStyle(
+                                                fontFamily: "NunitoSans",
+                                                fontSize: 17))),
+                                    Expanded(
+                                        flex: 5,
+                                        child: Text(_order_date,
+                                            style: TextStyle(
+                                                fontFamily: "NunitoSans",
+                                                fontSize: 17),
+                                            textAlign: TextAlign.end))
+                                  ],
+                                ),
+                                SizedBox(height: size.hp(1.5)),
+                                Divider(color: Colors.black, height: 1),
+                                SizedBox(height: size.hp(1.5)),
                                 SizedBox(height: 8),
                                 Row(
                                   children: [
@@ -230,90 +253,130 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             8.0),
-                                                    child:
-                                                        Image.file(imageFile!)),
+                                                    child: Image.file(
+                                                        imageFile!,
+                                                        width: 250)),
                                               ],
                                             )),
                                       ),
                                 SizedBox(height: 8),
-                                _status == 3
-                                    ? SizedBox(
-                                        height: 0,
-                                      )
-                                    : Row(
+                                _status == 0
+                                    ? Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
-                                            _status == 2
-                                                ? SizedBox(height: 0)
-                                                : Container(
-                                                    child: RaisedButton(
-                                                        onPressed: () {
-                                                          _finishJob();
-                                                        },
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                top: 12,
-                                                                bottom: 12),
-                                                        shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        25)),
-                                                        color: Colors.green,
-                                                        child: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.max,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: <Widget>[
-                                                            Text("Finish",
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        "NuntioSans",
-                                                                    color: Colors
-                                                                        .white)),
-                                                          ],
-                                                        )),
-                                                  ),
-                                            _status == 1
-                                                ? SizedBox(height: 0)
-                                                : Container(
-                                                    child: RaisedButton(
-                                                        onPressed: () {
-                                                          _backToProcessJob();
-                                                        },
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                right: 20,
-                                                                left: 20,
-                                                                top: 12,
-                                                                bottom: 12),
-                                                        shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        25)),
-                                                        color: Colors.redAccent,
-                                                        child: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.max,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: <Widget>[
-                                                            Text(
-                                                                "Rollback Process",
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        "NuntioSans",
-                                                                    color: Colors
-                                                                        .white)),
-                                                          ],
-                                                        )),
-                                                  ),
-                                          ]),
+                                            Container(
+                                              child: RaisedButton(
+                                                  onPressed: () {
+                                                    _startJob();
+                                                  },
+                                                  padding: EdgeInsets.only(
+                                                      top: 12, bottom: 12),
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              25)),
+                                                  color: Colors.blueAccent,
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: <Widget>[
+                                                      Text("Start",
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                                  "NuntioSans",
+                                                              color: Colors
+                                                                  .white)),
+                                                    ],
+                                                  )),
+                                            ),
+                                          ])
+                                    : _status == 3
+                                        ? SizedBox(
+                                            height: 0,
+                                          )
+                                        : Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                                _status == 2
+                                                    ? SizedBox(height: 0)
+                                                    : Container(
+                                                        child: RaisedButton(
+                                                            onPressed: () {
+                                                              _finishJob();
+                                                            },
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    top: 12,
+                                                                    bottom: 12),
+                                                            shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            25)),
+                                                            color: Colors.green,
+                                                            child: Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .max,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: <
+                                                                  Widget>[
+                                                                Text("Finish",
+                                                                    style: TextStyle(
+                                                                        fontFamily:
+                                                                            "NuntioSans",
+                                                                        color: Colors
+                                                                            .white)),
+                                                              ],
+                                                            )),
+                                                      ),
+                                                _status == 1
+                                                    ? SizedBox(height: 0)
+                                                    : Container(
+                                                        child: RaisedButton(
+                                                            onPressed: () {
+                                                              _backToProcessJob();
+                                                            },
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    right: 20,
+                                                                    left: 20,
+                                                                    top: 12,
+                                                                    bottom: 12),
+                                                            shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            25)),
+                                                            color: Colors
+                                                                .redAccent,
+                                                            child: Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .max,
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: <
+                                                                  Widget>[
+                                                                Text(
+                                                                    "Rollback Process",
+                                                                    style: TextStyle(
+                                                                        fontFamily:
+                                                                            "NuntioSans",
+                                                                        color: Colors
+                                                                            .white)),
+                                                              ],
+                                                            )),
+                                                      ),
+                                              ]),
                               ]))
                     ],
                   )));
@@ -322,7 +385,7 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
   Future<File?> testCompressAndGetFile(File file, String targetPath) async {
     final result = await FlutterImageCompress.compressAndGetFile(
         file.absolute.path, targetPath,
-        quality: 70, minHeight: 170, minWidth: 113);
+        quality: 100);
     return result;
   }
 
@@ -331,6 +394,25 @@ class _WorkerJobDetailScreenState extends State<WorkerJobDetailScreen> {
       _loadData = true;
     });
     var _result = await _jobService.changeJobStatus(widget.transaction_id, 2);
+    if (_result['result']) {
+      setState(() {
+        _loadData = false;
+        _showSnackBarSuccess(_result['message']);
+        _refreshPage();
+      });
+    } else {
+      setState(() {
+        _loadData = false;
+        _showSnackBarFailed(_result['message']);
+      });
+    }
+  }
+
+  _startJob() async {
+    setState(() {
+      _loadData = true;
+    });
+    var _result = await _jobService.changeJobStatus(widget.transaction_id, 1);
     if (_result['result']) {
       setState(() {
         _loadData = false;

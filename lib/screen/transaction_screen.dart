@@ -253,12 +253,15 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                                         fontFamily:
                                                             "NunitoSansBold",
                                                         fontSize: 16)),
-                                                Text(
-                                                    "${_listTransaction[index]['package_name']}",
-                                                    style: TextStyle(
-                                                        fontFamily:
-                                                            "NunitoSans",
-                                                        fontSize: 16)),
+                                                Flexible(
+                                                    child: Text(
+                                                        "${_listTransaction[index]['package_name']}",
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                "NunitoSans",
+                                                            fontSize: 16))),
                                               ],
                                             ),
                                           ],

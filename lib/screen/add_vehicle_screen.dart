@@ -99,7 +99,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text("Add Vehicle"),
+          title: Text("Vehicle Form"),
         ),
         body: _loadData
             ? Center(child: CircularProgressIndicator())
@@ -241,7 +241,10 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                                         ClipRRect(
                                             borderRadius:
                                                 BorderRadius.circular(8.0),
-                                            child: Image.file(imageFile)),
+                                            child: Image.file(
+                                              imageFile,
+                                              width: 250,
+                                            )),
                                         Positioned(
                                             child:
                                                 // InkWell(
@@ -529,7 +532,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
   Future<File> testCompressAndGetFile(File file, String targetPath) async {
     final result = await FlutterImageCompress.compressAndGetFile(
         file.absolute.path, targetPath,
-        quality: 70, minHeight: 170, minWidth: 113);
+        quality: 100);
     return result;
   }
 
