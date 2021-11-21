@@ -91,15 +91,9 @@ class _LeftBarState extends State<LeftBar> {
                       MaterialPageRoute(builder: (context) => HomeScreen()));
                 }),
             !isWorker
-                ? ListTile(
-                    title: Text("Register to Company"),
-                    leading: Icon(Icons.app_registration),
-                    onTap: () {
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => RegisterToCompany()));
-                    })
+                ? SizedBox(
+                    height: 0,
+                  )
                 : ListTile(
                     title: Text("Jobs"),
                     leading: Icon(Icons.work),

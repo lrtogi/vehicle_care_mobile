@@ -53,18 +53,27 @@ class _JobListState extends State<JobList> {
             return Center(child: CircularProgressIndicator());
           }
           return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+            // scrollDirection: Axis.horizontal,
             child: DataTable(
+              columnSpacing: 25.0,
               columns: [
                 DataColumn(label: Text('Index')),
-                DataColumn(label: Text('Customer Name')),
+                DataColumn(
+                    label: Flexible(
+                        child: Text(
+                  'Customer Name',
+                ))),
                 DataColumn(label: Text('Package Name')),
                 DataColumn(label: Text('Status'))
               ],
               rows: _jobService.jobListModel.data
                   .map((data) => DataRow(cells: [
-                        DataCell(Text(data.index.toString())),
-                        DataCell(Text(data.customerName)),
+                        DataCell(Flexible(
+                            child: Text(
+                          data.index.toString(),
+                          overflow: TextOverflow.ellipsis,
+                        ))),
+                        DataCell(Flexible(child: Text(data.customerName))),
                         DataCell(Text(data.packageName)),
                         DataCell(Text(data.status))
                       ]))
@@ -80,7 +89,7 @@ class _JobListState extends State<JobList> {
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text("Job List " + widget.company_name),
+          title: Text("Job List "),
         ),
         body: Column(children: <Widget>[
           Form(

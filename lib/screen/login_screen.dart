@@ -236,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     builder: (context) => RegisterScreen()));
                           },
                           child: new Text(
-                            "SingUp if don't have account ",
+                            "Sign Up if don't have account ",
                             style: TextStyle(
                               color: Colors.white,
                               letterSpacing: 2,
