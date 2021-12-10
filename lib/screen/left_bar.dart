@@ -9,6 +9,7 @@ import 'package:vehicle_care_2/screen/job_menu.dart';
 import 'package:vehicle_care_2/screen/login_screen.dart';
 import 'package:vehicle_care_2/screen/register_to_company.dart';
 import 'package:vehicle_care_2/screen/transaction_screen.dart';
+import 'package:vehicle_care_2/screen/transaction_screen_list.dart';
 import 'package:vehicle_care_2/screen/vehicle_screen.dart';
 import 'package:vehicle_care_2/services/auth.dart';
 
@@ -131,7 +132,7 @@ class _LeftBarState extends State<LeftBar> {
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => TransactionScreen()));
+                          builder: (context) => TransactionScreenList()));
                 }),
             ListTile(
                 title: Text("Logout"),

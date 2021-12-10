@@ -41,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _loadData = true;
     });
     var _result = await _profileService.getCompany();
+    print(_result);
     if (_result['result']) {
       setState(() {
         _listCompany = _result['data'];
@@ -146,23 +147,60 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Expanded(
                                                 flex: 8,
                                                 child: Container(
-                                                  padding: EdgeInsets.only(
-                                                      top: size.getWidthPx(16),
-                                                      bottom:
-                                                          size.getWidthPx(16),
-                                                      left: size.getWidthPx(8)),
-                                                  child: Text(
-                                                      '${_listCompany[index]['company_name']}',
-                                                      style: TextStyle(
-                                                          fontFamily:
-                                                              "NunitoSansBold",
-                                                          fontSize: 20,
-                                                          color: Colors.black)),
-                                                ),
+                                                    padding: EdgeInsets.only(
+                                                        top:
+                                                            size.getWidthPx(16),
+                                                        bottom:
+                                                            size.getWidthPx(16),
+                                                        left:
+                                                            size.getWidthPx(8)),
+                                                    child: Flexible(
+                                                        child: Text(
+                                                            "${_listCompany[index]['company_name']}",
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "NunitoSans",
+                                                                fontSize:
+                                                                    20)))),
                                               ),
                                               SizedBox(width: 0.0, height: 0.0)
                                             ],
                                           ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(16),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: <Widget>[
+                                                Text("Open : ",
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "NunitoSansBold",
+                                                        fontSize: 16)),
+                                                Text(
+                                                    _listCompany[index]
+                                                                ['start'] ==
+                                                            _listCompany[index]
+                                                                ['end']
+                                                        ? "24 Hour"
+                                                        : "${_listCompany[index]['limit']}",
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "NunitoSans",
+                                                        fontSize: 16)),
+                                              ],
+                                            ),
+                                          ],
                                         ),
                                       ),
                                       Container(
@@ -181,12 +219,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         fontFamily:
                                                             "NunitoSansBold",
                                                         fontSize: 16)),
-                                                Text(
-                                                    "${_listCompany[index]['alamat_perusahaan']}",
-                                                    style: TextStyle(
-                                                        fontFamily:
-                                                            "NunitoSans",
-                                                        fontSize: 16)),
+                                                Flexible(
+                                                    child: Text(
+                                                        "${_listCompany[index]['alamat_perusahaan']}",
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                "NunitoSans",
+                                                            fontSize: 16))),
                                               ],
                                             ),
                                           ],
@@ -210,6 +251,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         fontSize: 16)),
                                                 Text(
                                                     "${_listCompany[index]['no_telp']}",
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "NunitoSans",
+                                                        fontSize: 16)),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.all(16),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: <Widget>[
+                                                Text("Limit : ",
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "NunitoSansBold",
+                                                        fontSize: 16)),
+                                                Text(
+                                                    "${_listCompany[index]['limit']}",
                                                     style: TextStyle(
                                                         fontFamily:
                                                             "NunitoSans",

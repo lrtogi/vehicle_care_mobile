@@ -15,14 +15,14 @@ class TransactionService extends ChangeNotifier {
   Auth _auth = Auth();
   final storage = new FlutterSecureStorage();
 
-  Future getListTransaction() async {
+  Future getListTransaction(String flag) async {
     String token = await storage.read(key: 'token');
     var customer_id = await storage.read(key: 'customer_id');
     var _url = BaseUrl.url;
     try {
       var _response = await _client.post(_url + "transactionMobile/getListData",
           headers: {'Authorization': 'Bearer ' + token},
-          body: {'customer_id': customer_id});
+          body: {'customer_id': customer_id, 'flag': flag});
       final _data = jsonDecode(_response.body);
       if (_data['result']) {
         return _data;

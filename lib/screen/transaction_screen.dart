@@ -34,7 +34,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
     setState(() {
       _loadData = true;
     });
-    var _result = await _transactionService.getListTransaction();
+    var _result = await _transactionService.getListTransaction('1');
     if (_result['result']) {
       setState(() {
         _loadData = false;
