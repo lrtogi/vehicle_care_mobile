@@ -193,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             _listCompany[index]
                                                                 ['end']
                                                         ? "24 Hour"
-                                                        : "${_listCompany[index]['limit']}",
+                                                        : "${_listCompany[index]['start']} - ${_listCompany[index]['end']}",
                                                     style: TextStyle(
                                                         fontFamily:
                                                             "NunitoSans",
